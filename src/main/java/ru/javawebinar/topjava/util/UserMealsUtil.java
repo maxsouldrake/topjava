@@ -24,18 +24,16 @@ public class UserMealsUtil {
     }
 
     public static List<UserMealWithExceed>  getFilteredWithExceeded(List<UserMeal> mealList, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        List<UserMealWithExceed> filteredList = new ArrayList<>();
-        List<UserMeal> reserveList = new ArrayList<>();
         Map<LocalDate, Integer> map = new HashMap<>();
         for (UserMeal meal : mealList) {
             map.merge(meal.getDateTime().toLocalDate(), meal.getCalories(), (v1, v2) -> v1 + v2);
-            if (TimeUtil.isBetween(meal.getDateTime().toLocalTime(), startTime, endTime)) {
-                reserveList.add(meal);
-            }
         }
-        for (UserMeal meal : reserveList) {
-            boolean exceed = map.getOrDefault(meal.getDateTime().toLocalDate(), 0) > caloriesPerDay;
-            filteredList.add(new UserMealWithExceed(meal.getDateTime(), meal.getDescription(), meal.getCalories(), exceed));
+        List<UserMealWithExceed> filteredList = new ArrayList<>();
+        for (UserMeal meal : mealList) {
+            if (TimeUtil.isBetween(meal.getDateTime().toLocalTime(), startTime, endTime)) {
+                filteredList.add(new UserMealWithExceed(meal.getDateTime(), meal.getDescription(), meal.getCalories(),
+                        map.getOrDefault(meal.getDateTime().toLocalDate(), 0) > caloriesPerDay));
+            }
         }
         return filteredList;
     }

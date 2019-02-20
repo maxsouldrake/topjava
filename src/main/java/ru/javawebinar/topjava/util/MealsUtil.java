@@ -1,11 +1,10 @@
 package ru.javawebinar.topjava.util;
 
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.model.MealTo;
+import ru.javawebinar.topjava.to.MealTo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,14 +28,18 @@ public class MealsUtil {
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
 
     public static List<MealTo> getWithExcess(Collection<Meal> meals, int caloriesPerDay) {
-        return getFilteredWithExcess(meals, caloriesPerDay, meal -> true);
+        return getFilteredWithExcess(meals, caloriesPerDay, meal -> true, meal -> true);
     }
 
-    public static List<MealTo> getFilteredWithExcess(Collection<Meal> meals, int caloriesPerDay, LocalTime startTime, LocalTime endTime) {
-        return getFilteredWithExcess(meals, caloriesPerDay, meal -> DateTimeUtil.isBetween(meal.getTime(), startTime, endTime));
+    public static List<MealTo> getFilteredWithExcess(Collection<Meal> meals, int caloriesPerDay,
+                                                     LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        return getFilteredWithExcess(meals, caloriesPerDay,
+                meal -> DateTimeUtil.isBetween(meal.getTime(), startDateTime.toLocalTime(), endDateTime.toLocalTime()),
+                meal -> DateTimeUtil.isBetween(meal.getDate(), startDateTime.toLocalDate(), endDateTime.toLocalDate()));
     }
 
-    private static List<MealTo> getFilteredWithExcess(Collection<Meal> meals, int caloriesPerDay, Predicate<Meal> filter) {
+    private static List<MealTo> getFilteredWithExcess(Collection<Meal> meals, int caloriesPerDay,
+                                                      Predicate<Meal> timeFilter, Predicate<Meal> dateFilter) {
         Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
                 .collect(
                         Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories))
@@ -44,7 +47,8 @@ public class MealsUtil {
                 );
 
         return meals.stream()
-                .filter(filter)
+                .filter(timeFilter)
+                .filter(dateFilter)
                 .map(meal -> createWithExcess(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
                 .collect(toList());
     }

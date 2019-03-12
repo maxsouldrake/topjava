@@ -23,21 +23,7 @@ import java.util.List;
 
 import static ru.javawebinar.topjava.UserTestData.*;
 
-@ContextConfiguration({
-        "classpath:spring/spring-app.xml",
-        "classpath:spring/spring-db.xml"
-})
-@RunWith(SpringRunner.class)
-@Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
-@ActiveProfiles(resolver = ActiveDbProfileResolver.class)
-public class UserServiceTest {
-
-    static {
-        // Only for postgres driver logging
-        // It uses java.util.logging and logged via jul-to-slf4j bridge
-        SLF4JBridgeHandler.install();
-    }
-
+public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Autowired
     private UserService service;
 
@@ -58,8 +44,9 @@ public class UserServiceTest {
         assertMatch(service.getAll(), ADMIN, newUser, USER);
     }
 
-    @Test(expected = DataAccessException.class)
+    @Test
     public void duplicateMailCreate() throws Exception {
+        thrown.expect(DataAccessException.class);
         service.create(new User(null, "Duplicate", "user@yandex.ru", "newPass", Role.ROLE_USER));
     }
 
@@ -69,8 +56,9 @@ public class UserServiceTest {
         assertMatch(service.getAll(), ADMIN);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void deletedNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
         service.delete(1);
     }
 
@@ -80,8 +68,9 @@ public class UserServiceTest {
         assertMatch(user, USER);
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void getNotFound() throws Exception {
+        thrown.expect(NotFoundException.class);
         service.get(1);
     }
 

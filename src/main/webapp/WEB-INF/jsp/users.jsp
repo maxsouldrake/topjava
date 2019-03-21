@@ -21,6 +21,7 @@
             <th><spring:message code="user.registered"/></th>
         </tr>
         </thead>
+        <jsp:useBean id="users" scope="request" type="java.util.List"/>
         <c:forEach items="${users}" var="user">
             <jsp:useBean id="user" scope="page" type="ru.javawebinar.topjava.model.User"/>
             <tr>

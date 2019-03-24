@@ -3,10 +3,10 @@ package ru.javawebinar.topjava.web.meal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.util.Util;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -39,7 +39,8 @@ public class JspMealController extends AbstractMealController {
 
     @GetMapping("/create")
     public String create(Model model) {
-        Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000);
+        LocalDateTime localDateTime = getCurrentTime();
+        Meal meal = new Meal(localDateTime, getDescription(localDateTime), 1000);
         model.addAttribute("meal", meal);
         return "mealForm";
     }
@@ -62,7 +63,7 @@ public class JspMealController extends AbstractMealController {
         } else {
             super.update(meal, getId(request));
         }
-        return "redirect:meals";
+        return "redirect:/meals";
     }
 
     @GetMapping("/delete")
@@ -74,5 +75,23 @@ public class JspMealController extends AbstractMealController {
     private int getId(HttpServletRequest request) {
         String paramId = Objects.requireNonNull(request.getParameter("id"));
         return Integer.parseInt(paramId);
+    }
+
+    private LocalDateTime getCurrentTime() {
+        return LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+    }
+
+    private String getDescription(LocalDateTime localDateTime) {
+        String description = "";
+        if (Util.isBetween(localDateTime.toLocalTime(), LocalTime.of(3, 0), LocalTime.of(12,0))) {
+            description = "Завтрак";
+        }
+        if (Util.isBetween(localDateTime.toLocalTime(), LocalTime.of(12, 0), LocalTime.of(17,0))) {
+            description = "Обед";
+        }
+        if (Util.isBetween(localDateTime.toLocalTime(), LocalTime.of(17, 0), LocalTime.of(3,0))) {
+            description = "Ужин";
+        }
+        return description;
     }
 }

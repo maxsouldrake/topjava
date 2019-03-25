@@ -93,25 +93,24 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM users u LEFT JOIN user_roles ur ON u.id=ur.user_id",
+        return jdbcTemplate.query("SELECT * FROM users u LEFT JOIN user_roles ur ON u.id=ur.user_id ORDER BY name, email",
                 getResultSetExtractor());
     }
 
     private ResultSetExtractor<List<User>> getResultSetExtractor() {
         return rs -> {
-            Map<Integer, User> userMap = new HashMap<>();
+            List<User> users = new ArrayList<>();
             Map<Integer, Set<Role>> roleMap = new HashMap<>();
             User user;
             Set<Role> roles;
+            int uId = -1;
             while (rs.next()) {
                 int id = rs.getInt("id");
-                user = userMap.get(id);
                 roles = roleMap.get(id);
-                Role role = Role.valueOf(rs.getString("role"));
                 if (roles == null) {
                     roles = new HashSet<>();
                 }
-                if (user == null) {
+                if (uId != id) {
                     user = new User();
                     user.setId(id);
                     user.setCaloriesPerDay(rs.getInt("calories_per_day"));
@@ -120,15 +119,14 @@ public class JdbcUserRepositoryImpl implements UserRepository {
                     user.setPassword(rs.getString("password"));
                     user.setRegistered(rs.getDate("registered"));
                     user.setName(rs.getString("name"));
-                    user.setRoles(Collections.singleton(Role.valueOf(rs.getString("role"))));
-                    userMap.put(id, user);
+                    users.add(user);
+                    uId = id;
                 }
-                roles.add(role);
+                roles.add(Role.valueOf(rs.getString("role")));
                 roleMap.put(id, roles);
             }
-            userMap.keySet().forEach(key -> userMap.get(key).setRoles(roleMap.get(key)));
-            return userMap.values().stream().sorted(Comparator.comparing(User::getName)
-                    .thenComparing(Comparator.comparing(User::getEmail))).collect(Collectors.toList());
+            users.forEach(u -> u.setRoles(roleMap.get(u.getId())));
+            return users;
         };
     }
 }

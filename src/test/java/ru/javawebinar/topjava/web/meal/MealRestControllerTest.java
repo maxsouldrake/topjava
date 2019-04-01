@@ -31,7 +31,23 @@ class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void testGetBetween() throws Exception {
-        mockMvc.perform(get(REST_URL + "filter?startDateTime=2015-05-30T07:00&endDateTime=2015-05-31T11:00:00"))
+        mockMvc.perform(get(REST_URL + "filter?startDate=2015-05-30&startTime=07:00&endDate=2015-05-30&endTime=14:00"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(contentJson(MealsUtil.createWithExcess(MEAL2, false), MealsUtil.createWithExcess(MEAL1, false)));
+    }
+
+    @Test
+    void testGetBetweenDates() throws Exception {
+        mockMvc.perform(get(REST_URL + "filter?startDate=2015-05-30&endDate=2015-05-30"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(contentJson(MealsUtil.createWithExcess(MEAL3, false), MealsUtil.createWithExcess(MEAL2, false), MealsUtil.createWithExcess(MEAL1, false)));
+    }
+
+    @Test
+    void testGetBetweenTimes() throws Exception {
+        mockMvc.perform(get(REST_URL + "filter?startDate=&startTime=07:00&endDate=&endTime=11:00"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(contentJson(MealsUtil.createWithExcess(MEAL4, true), MealsUtil.createWithExcess(MEAL1, false)));

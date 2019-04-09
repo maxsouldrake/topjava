@@ -16,7 +16,7 @@
         <div class="col-form-label-lg">
             <div class="well">
                 <h3>Filter:</h3>
-                <form method="post" action="meals/filter" id="filter">
+                <form id="filter">
                     <div class="row">
                         <div class="form-group">
                             <label for="startDate"><spring:message code="meal.startDate"/>:</label>
@@ -35,9 +35,16 @@
                             <input class="form-control" type="time" name="endTime" value="${param.endTime}" id="endTime">
                         </div>
                     </div>
-                    <button type="submit"><spring:message code="meal.filter"/></button>
                 </form>
             </div>
+            <button class="btn btn-primary" onclick="filteredTable()">
+                <span class="fa fa-filter"></span>
+                <spring:message code="meal.filter"/>
+            </button>
+            <button class="btn btn-danger" onclick="clearFilter()">
+                <span class="fa fa-close"></span>
+                <spring:message code="common.cancel"/>
+            </button>
         </div>
 
 

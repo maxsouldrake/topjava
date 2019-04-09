@@ -1,7 +1,8 @@
-// $(document).ready(function () {
+const ajaxUrl = "ajax/admin/users/";
+
 $(function () {
     makeEditable({
-            ajaxUrl: "ajax/admin/users/",
+            ajaxUrl: ajaxUrl,
             datatableApi: $("#datatable").DataTable({
                 "paging": false,
                 "info": true,

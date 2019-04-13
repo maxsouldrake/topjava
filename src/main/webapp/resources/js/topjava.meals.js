@@ -34,14 +34,14 @@ $(function () {
                     "data": "calories"
                 },
                 {
-                    "render": renderEditBtn,
+                    "orderable": false,
                     "defaultContent": "",
-                    "orderable": false
+                    "render": renderEditBtn
                 },
                 {
-                    "render": renderDeleteBtn,
+                    "orderable": false,
                     "defaultContent": "",
-                    "orderable": false
+                    "render": renderDeleteBtn
                 }
             ],
             "order": [
